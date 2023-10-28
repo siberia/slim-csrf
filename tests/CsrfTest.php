@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Slim\HttpCache\Tests;
 
 use Psr\Http\Message\RequestInterface;
@@ -12,7 +15,7 @@ use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Csrf\Guard;
 
-class CsrfTest extends \PHPUnit_Framework_TestCase
+final class CsrfTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * PSR7 request object
@@ -40,7 +43,7 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
         $serverParams = $env->all();
         $body = new Body(fopen('php://temp', 'r+'));
         $this->request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $this->response = new Response;
+        $this->response = new Response();
     }
 
     public function testTokenKeys()
@@ -59,22 +62,45 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
         $mw = new Guard('csrf', $storage);
         $next = function ($req, $res) use ($mw) {
             return $res
-                ->withHeader('X-CSRF-NAME',  $req->getAttribute($mw->getTokenNameKey()))
+                ->withHeader('X-CSRF-NAME', $req->getAttribute($mw->getTokenNameKey()))
                 ->withHeader('X-CSRF-VALUE', $req->getAttribute($mw->getTokenValueKey()));
         };
         $response1 = $mw($request, $response, $next);
         $response2 = $mw($request, $response, $next);
-        
-        $this->assertStringStartsWith('csrf', $response1->getHeaderLine('X-CSRF-NAME'), 'Name key should start with csrf prefix');
-        $this->assertStringStartsWith('csrf', $response2->getHeaderLine('X-CSRF-NAME'), 'Name key should start with csrf prefix');
-        
-        $this->assertNotEquals($response1->getHeaderLine('X-CSRF-NAME'), $response2->getHeaderLine('X-CSRF-NAME'), 'Generated token names must be unique');
-        
-        $this->assertEquals(32, strlen($response1->getHeaderLine('X-CSRF-VALUE')), 'Length of the generated token value should be double the strength');
-        $this->assertEquals(32, strlen($response2->getHeaderLine('X-CSRF-VALUE')), 'Length of the generated token value should be double the strength');
-        
-        $this->assertTrue(ctype_xdigit($response1->getHeaderLine('X-CSRF-VALUE')), 'Generated token value is not hexadecimal');
-        $this->assertTrue(ctype_xdigit($response2->getHeaderLine('X-CSRF-VALUE')), 'Generated token value is not hexadecimal');
+
+        $this->assertStringStartsWith(
+            'csrf',
+            $response1->getHeaderLine('X-CSRF-NAME'),
+            'Name key should start with csrf prefix'
+        );
+        $this->assertStringStartsWith(
+            'csrf',
+            $response2->getHeaderLine('X-CSRF-NAME'),
+            'Name key should start with csrf prefix'
+        );
+
+        $this->assertNotEquals(
+            $response1->getHeaderLine('X-CSRF-NAME'),
+            $response2->getHeaderLine('X-CSRF-NAME'),
+            'Generated token names must be unique'
+        );
+
+        $this->assertEquals(
+            32,
+            strlen($response1->getHeaderLine('X-CSRF-VALUE')),
+            'Length of the generated token value should be double the strength'
+        );
+        $this->assertEquals(
+            32,
+            strlen($response2->getHeaderLine('X-CSRF-VALUE')),
+            'Length of the generated token value should be double the strength'
+        );
+
+        $this->assertTrue(
+            ctype_xdigit($response1->getHeaderLine('X-CSRF-VALUE')),
+            'Generated token value is not hexadecimal');
+        $this->assertTrue(
+            ctype_xdigit($response2->getHeaderLine('X-CSRF-VALUE')), 'Generated token value is not hexadecimal');
     }
 
     public function testValidToken()
@@ -137,7 +163,7 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
     public function testExternalStorageOfAnArrayAccessPersists()
     {
         $storage = new \ArrayObject();
-        
+
         $request = $this->request
                         ->withMethod('POST')
                         ->withParsedBody([
@@ -158,7 +184,7 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
     public function testExternalStorageOfAnArrayPersists()
     {
         $storage = [];
-        
+
         $request = $this->request
                         ->withMethod('POST')
                         ->withParsedBody([
@@ -191,13 +217,13 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
 
         // Token name and value should be null if the storage is empty and middleware has not yet been invoked
         $this->assertNull($mw->getTokenName());
-        $this->assertNull($mw->getTokenValue());        
-        
+        $this->assertNull($mw->getTokenValue());
+
         $response = $mw($this->request, $this->response, $next);
 
         // Persistent token name and value have now been generated
         $name = $mw->getTokenName();
-        $value = $mw->getTokenValue();        
+        $value = $mw->getTokenValue();
 
         // Subsequent request will attempt to validate the token
         $request = $this->request
@@ -212,7 +238,7 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($name, $mw->getTokenName());
         $this->assertEquals($value, $mw->getTokenValue());
     }
-    
+
     public function testPersistenceModeTrueBetweenRequestsArrayAccess()
     {
         $storage = new \ArrayObject();
@@ -228,13 +254,13 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
 
         // Token name and value should be null if the storage is empty and middleware has not yet been invoked
         $this->assertNull($mw->getTokenName());
-        $this->assertNull($mw->getTokenValue());        
-        
+        $this->assertNull($mw->getTokenValue());
+
         $response = $mw($this->request, $this->response, $next);
 
         // Persistent token name and value have now been generated
         $name = $mw->getTokenName();
-        $value = $mw->getTokenValue();        
+        $value = $mw->getTokenValue();
 
         // Subsequent request will attempt to validate the token
         $request = $this->request
@@ -244,12 +270,12 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
                             'csrf_value' => $value
                         ]);
         $response = $mw($request, $this->response, $next);
-        
+
         // Token name and value should be the same after subsequent request
         $this->assertEquals($name, $mw->getTokenName());
         $this->assertEquals($value, $mw->getTokenValue());
-    }    
-    
+    }
+
     public function testPersistenceModeFalseBetweenRequestsArray()
     {
         $storage = [];
@@ -265,13 +291,13 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
 
         // Token name and value should be null if the storage is empty and middleware has not yet been invoked
         $this->assertNull($mw->getTokenName());
-        $this->assertNull($mw->getTokenValue());        
-        
+        $this->assertNull($mw->getTokenValue());
+
         $response = $mw($this->request, $this->response, $next);
 
         // First token name and value have now been generated
         $name = $mw->getTokenName();
-        $value = $mw->getTokenValue();        
+        $value = $mw->getTokenValue();
 
         // Subsequent request will attempt to validate the token
         $request = $this->request
@@ -286,7 +312,7 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($name, $mw->getTokenName());
         $this->assertNotEquals($value, $mw->getTokenValue());
     }
-    
+
     public function testPersistenceModeFalseBetweenRequestsArrayAccess()
     {
         $storage = new \ArrayObject();
@@ -302,13 +328,13 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
 
         // Token name and value should be null if the storage is empty and middleware has not yet been invoked
         $this->assertNull($mw->getTokenName());
-        $this->assertNull($mw->getTokenValue());        
-        
+        $this->assertNull($mw->getTokenValue());
+
         $response = $mw($this->request, $this->response, $next);
 
         // First token name and value have now been generated
         $name = $mw->getTokenName();
-        $value = $mw->getTokenValue();        
+        $value = $mw->getTokenValue();
 
         // Subsequent request will attempt to validate the token
         $request = $this->request
@@ -323,7 +349,7 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($name, $mw->getTokenName());
         $this->assertNotEquals($value, $mw->getTokenValue());
     }
-    
+
     public function testUpdateAfterInvalidTokenWithPersistenceModeTrue()
     {
         $storage = [];
@@ -346,18 +372,18 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
                         ->withParsedBody([
                             'csrf_name' => 'csrf_123',
                             'csrf_value' => 'xyz'
-                        ]);        
+                        ]);
         $response = $mw($request, $this->response, $next);
 
         // Token name and value should NOT be the same after subsequent request
         $this->assertNotEquals($name, $mw->getTokenName());
         $this->assertNotEquals($value, $mw->getTokenValue());
-    }    
-    
+    }
+
     public function testStorageLimitIsEnforcedForObjects()
     {
         $storage = new \ArrayObject();
-        
+
         $request = $this->request;
         $response = $this->response;
         $next = function ($req, $res) {
@@ -376,7 +402,7 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
     public function testStorageLimitIsEnforcedForArrays()
     {
         $storage = [];
-        
+
         $request = $this->request;
         $response = $this->response;
         $next = function ($req, $res) {
@@ -392,7 +418,8 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($storage));
     }
 
-    public function testKeyPair() {
+    public function testKeyPair()
+    {
         $mw = new Guard();
 
         $next = function ($req, $res) {
@@ -409,7 +436,7 @@ class CsrfTest extends \PHPUnit_Framework_TestCase
     public function testDefaultStorageIsSession()
     {
         $sessionBackup = $_SESSION;
-        $_SESSION = array();
+        $_SESSION = [];
 
         $mw = new Guard('csrf');
         $mw->validateStorage();
