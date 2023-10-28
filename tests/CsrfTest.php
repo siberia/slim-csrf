@@ -98,9 +98,12 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue(
             ctype_xdigit($response1->getHeaderLine('X-CSRF-VALUE')),
-            'Generated token value is not hexadecimal');
+            'Generated token value is not hexadecimal'
+        );
         $this->assertTrue(
-            ctype_xdigit($response2->getHeaderLine('X-CSRF-VALUE')), 'Generated token value is not hexadecimal');
+            ctype_xdigit($response2->getHeaderLine('X-CSRF-VALUE')),
+            'Generated token value is not hexadecimal'
+        );
     }
 
     public function testValidToken()
