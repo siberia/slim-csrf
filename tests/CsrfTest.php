@@ -15,7 +15,7 @@ use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Csrf\Guard;
 
-final class CsrfTest extends \PHPUnit_Framework_TestCase
+final class CsrfTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * PSR7 request object
@@ -34,7 +34,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
     /**
      * Run before each test
      */
-    public function setUp()
+    public function setUp(): void
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers();
@@ -46,7 +46,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->response = new Response();
     }
 
-    public function testTokenKeys()
+    public function testTokenKeys(): void
     {
         $mw = new Guard('test');
 
@@ -54,7 +54,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('test_value', $mw->getTokenValueKey());
     }
 
-    public function testTokenGeneration()
+    public function testTokenGeneration(): void
     {
         $storage = [];
         $request = $this->request;
@@ -106,7 +106,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testValidToken()
+    public function testValidToken(): void
     {
         $storage = ['csrf_123' => 'xyz'];
         $request = $this->request
@@ -125,7 +125,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(200, $newResponse->getStatusCode());
     }
 
-    public function testInvalidToken()
+    public function testInvalidToken(): void
     {
         $storage = ['csrf_123' => 'abc']; // <-- Invalid token value
         $request = $this->request
@@ -144,7 +144,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(400, $newResponse->getStatusCode());
     }
 
-    public function testMissingToken()
+    public function testMissingToken(): void
     {
         $storage = []; // <-- Missing token name and value
         $request = $this->request
@@ -163,7 +163,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(400, $newResponse->getStatusCode());
     }
 
-    public function testExternalStorageOfAnArrayAccessPersists()
+    public function testExternalStorageOfAnArrayAccessPersists(): void
     {
         $storage = new \ArrayObject();
 
@@ -184,7 +184,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($storage));
     }
 
-    public function testExternalStorageOfAnArrayPersists()
+    public function testExternalStorageOfAnArrayPersists(): void
     {
         $storage = [];
 
@@ -205,7 +205,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($storage));
     }
 
-    public function testPersistenceModeTrueBetweenRequestsArray()
+    public function testPersistenceModeTrueBetweenRequestsArray(): void
     {
         $storage = [];
 
@@ -242,7 +242,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($value, $mw->getTokenValue());
     }
 
-    public function testPersistenceModeTrueBetweenRequestsArrayAccess()
+    public function testPersistenceModeTrueBetweenRequestsArrayAccess(): void
     {
         $storage = new \ArrayObject();
 
@@ -279,7 +279,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($value, $mw->getTokenValue());
     }
 
-    public function testPersistenceModeFalseBetweenRequestsArray()
+    public function testPersistenceModeFalseBetweenRequestsArray(): void
     {
         $storage = [];
 
@@ -316,7 +316,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($value, $mw->getTokenValue());
     }
 
-    public function testPersistenceModeFalseBetweenRequestsArrayAccess()
+    public function testPersistenceModeFalseBetweenRequestsArrayAccess(): void
     {
         $storage = new \ArrayObject();
 
@@ -353,7 +353,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($value, $mw->getTokenValue());
     }
 
-    public function testUpdateAfterInvalidTokenWithPersistenceModeTrue()
+    public function testUpdateAfterInvalidTokenWithPersistenceModeTrue(): void
     {
         $storage = [];
 
@@ -383,7 +383,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($value, $mw->getTokenValue());
     }
 
-    public function testStorageLimitIsEnforcedForObjects()
+    public function testStorageLimitIsEnforcedForObjects(): void
     {
         $storage = new \ArrayObject();
 
@@ -402,7 +402,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($storage));
     }
 
-    public function testStorageLimitIsEnforcedForArrays()
+    public function testStorageLimitIsEnforcedForArrays(): void
     {
         $storage = [];
 
@@ -421,7 +421,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($storage));
     }
 
-    public function testKeyPair()
+    public function testKeyPair(): void
     {
         $mw = new Guard();
 
@@ -436,7 +436,7 @@ final class CsrfTest extends \PHPUnit_Framework_TestCase
         $this->assertNotNull($mw->getTokenValue());
     }
 
-    public function testDefaultStorageIsSession()
+    public function testDefaultStorageIsSession(): void
     {
         $sessionBackup = $_SESSION;
         $_SESSION = [];
