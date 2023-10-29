@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Slim\HttpCache\Tests;
+namespace Slim\Csrf\Tests;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
